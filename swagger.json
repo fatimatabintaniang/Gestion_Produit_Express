@@ -1,0 +1,548 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Gestion_Produit API",
+    "version": "1.0.0",
+    "description": "CRUD produits, catégories & fournisseurs."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Dev local"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "Categorie": {
+        "type": "object",
+        "required": [
+          "libelle"
+        ],
+        "properties": {
+          "libelle": {
+            "type": "string",
+            "example": "Charcuterie"
+          }
+        }
+      },
+      "UpdateCategorie": {
+        "type": "object",
+        "properties": {
+          "libelle": {
+            "type": "string",
+            "example": "Fruits"
+          }
+        }
+      },
+      "Fournisseur": {
+        "type": "object",
+        "required": [
+          "prenom",
+          "nom",
+          "adresse",
+          "email",
+          "telephone"
+        ],
+        "properties": {
+          "prenom": {
+            "type": "string",
+            "example": "Fatima"
+          },
+          "nom": {
+            "type": "string",
+            "example": "Niang"
+          },
+          "adresse": {
+            "type": "string",
+            "example": "Dakar"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "niang@gmail.com"
+          },
+          "telephone": {
+            "type": "string",
+            "pattern": "^\\+221(77|78|76)[0-9]{7}$",
+            "example": "+221771234567"
+          }
+        }
+      },
+      "UpdateFournisseur": {
+        "type": "object",
+        "properties": {
+          "prenom": {
+            "type": "string",
+            "example": "Fatima"
+          },
+          "nom": {
+            "type": "string",
+            "example": "Niang"
+          },
+          "adresse": {
+            "type": "string",
+            "example": "Dakar"
+          },
+          "email": {
+            "type": "string",
+            "example": "niang@gmail.com"
+          },
+          "telephone": {
+            "type": "string",
+            "pattern": "^\\+221(77|78|76)[0-9]{7}$",
+            "example": "+221771234567"
+          }
+        }
+      },
+      "Produit": {
+        "type": "object",
+        "required": [
+          "libelle",
+          "qte",
+          "prix",
+          "categoryId",
+          "fournisseurId"
+        ],
+        "properties": {
+          "libelle": {
+            "type": "string",
+            "example": "Tomate"
+          },
+          "qte": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10,
+            "example": 5
+          },
+          "prix": {
+            "type": "number",
+            "example": 1500
+          },
+          "categoryId": {
+            "type": "integer",
+            "example": 1
+          },
+          "fournisseurId": {
+            "type": "integer",
+            "example": 1
+          }
+        }
+      },
+      "UpdateProduit": {
+        "type": "object",
+        "properties": {
+          "libelle": {
+            "type": "string",
+            "example": "Tomate"
+          },
+         "qte": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10,
+            "example": 5
+          },
+          "prix": {
+            "type": "number",
+            "example": 1500
+          },
+          "categoryId": {
+            "type": "integer",
+            "example": 1
+          },
+          "fournisseurId": {
+            "type": "integer",
+            "example": 1
+          }
+        }
+      }
+    },
+    "parameters": {
+      "Id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer",
+          "example": 1
+        }
+      }
+    }
+  },
+  "paths": {
+    "/categories": {
+      "get": {
+        "summary": "Récupérer toutes les catégories",
+        "responses": {
+          "200": {
+            "description": "Liste des catégories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Categorie"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Ajouter une catégorie",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Categorie"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Catégorie créée",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Categorie"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Données invalides"
+          }
+        }
+      }
+    },
+    "/categories/{id}": {
+      "get": {
+        "summary": "Récupérer une catégorie par ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Catégorie trouvée",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Categorie"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Catégorie non trouvée"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Mettre à jour une catégorie par ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCategorie"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Catégorie mise à jour",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Categorie"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Données invalides"
+          },
+          "404": {
+            "description": "Catégorie non trouvée"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Supprimer une catégorie par ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Catégorie supprimée"
+          },
+          "404": {
+            "description": "Catégorie non trouvée"
+          }
+        }
+      }
+    },
+    "/fournisseurs": {
+      "get": {
+        "summary": "Récupérer tous les fournisseurs",
+        "responses": {
+          "200": {
+            "description": "Liste des fournisseurs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Fournisseur"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Ajouter un fournisseur",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Fournisseur"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Fournisseur créé",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fournisseur"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Données invalides"
+          }
+        }
+      }
+    },
+    "/fournisseurs/{id}": {
+      "get": {
+        "summary": "Récupérer un fournisseur par ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Fournisseur trouvé",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fournisseur"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Fournisseur non trouvé"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Mettre à jour un fournisseur par ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateFournisseur"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Fournisseur mis à jour",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Fournisseur"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Données invalides"
+          },
+          "404": {
+            "description": "Fournisseur non trouvé"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Supprimer un fournisseur par ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Fournisseur supprimé"
+          },
+          "404": {
+            "description": "Fournisseur non trouvé"
+          }
+        }
+      }
+    },
+    "/produits": {
+      "get": {
+        "summary": "Récupérer tous les produits",
+        "responses": {
+          "200": {
+            "description": "Liste des produits",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Produit"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Ajouter un produit",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Produit"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Produit créé",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Produit"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Données invalides"
+          }
+        }
+      }
+    },
+    "/produits/{id}": {
+      "get": {
+        "summary": "Récupérer un produit par ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Produit trouvé",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Produit"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Produit non trouvé"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Mettre à jour un produit par ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProduit"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Produit mis à jour",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Produit"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Données invalides"
+          },
+          "404": {
+            "description": "Produit non trouvé"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Supprimer un produit par ID",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Produit supprimé"
+          },
+          "404": {
+            "description": "Produit non trouvé"
+          }
+        }
+      }
+    }
+  }
+}
