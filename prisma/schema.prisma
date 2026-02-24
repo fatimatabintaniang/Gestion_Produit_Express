@@ -27,6 +27,7 @@ model Produit {
   libelle       String      @unique
   qte           Float
   prix          Float
+  image         String
   categoryId    Int
   fournisseurId Int
   categorie     Categorie   @relation(fields: [categoryId], references: [id])

@@ -18,16 +18,22 @@ export const categorieController = {
 
   create: async (req, res, next) => {
     try {
-      const parsed = categorieCreateSchema.parse(req.body)
-      const data = await categorieService.create(parsed)
+      const parsed = categorieCreateSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ errors: parsed.error.flatten().fieldErrors })
+      }
+      const data = await categorieService.create(parsed.data)
       res.status(201).json(data)
     } catch (err) { next(err) }
   },
 
   update: async (req, res, next) => {
     try {
-      const parsed = categorieUpdateSchema.parse(req.body)
-      const data = await categorieService.update(Number(req.params.id), parsed)
+      const parsed = categorieUpdateSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ errors: parsed.error.flatten().fieldErrors })
+      }
+      const data = await categorieService.update(Number(req.params.id), parsed.data)
       res.json(data)
     } catch (err) { next(err) }
   },

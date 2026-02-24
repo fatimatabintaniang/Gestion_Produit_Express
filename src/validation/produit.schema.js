@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+const base64ImageRegex = /^data:image\/(png|jpg|jpeg|webp);base64,[A-Za-z0-9+/=]+$/
+
 export const produitSchema = z.object({
   libelle: z.string()
     .min(1, 'Le libellé est obligatoire')
@@ -18,6 +20,7 @@ export const produitSchema = z.object({
     invalid_type_error: 'Le prix doit être un nombre'
   })
     .positive('Le prix doit être supérieur à 0'),
+
 
   categoryId: z.number({
     required_error: 'La catégorie est obligatoire',
