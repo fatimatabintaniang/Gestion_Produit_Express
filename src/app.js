@@ -1,7 +1,7 @@
 import express from 'express'
-import { categorieRoutes }   from './routes/categorie.routes.js'
-import { produitRoutes }     from './routes/produit.routes.js'
-import { fournisseurRoutes } from './routes/fournisseur.routes.js'
+import  categorieRoutes    from './routes/categorie.routes.js'
+import  {produitRoutes}      from './routes/produit.routes.js'
+import  fournisseurRoutes  from './routes/fournisseur.routes.js'
 import swaggerRouter         from './swagger-static.js'
 
 export const app = express()

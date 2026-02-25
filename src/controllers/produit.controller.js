@@ -1,71 +1,47 @@
+import { createCrudController } from '../utils/crud.controller.js'
+import { asyncHandler } from '../utils/asyncHandler.js'
 import { produitService } from '../services/produit.service.js'
 import { produitCreateSchema, produitUpdateSchema } from '../validation/produit.schema.js'
 
-export const produitController = {
-  getAll: async (req, res, next) => {
-    try {
-      const data = await produitService.getAll()
-      res.json(data)
-    } catch (err) { next(err) }
-  },
+const base = createCrudController(produitService)
 
-  getById: async (req, res, next) => {
-    try {
-      const data = await produitService.getById(Number(req.params.id))
-      res.json(data)
-    } catch (err) { next(err) }
-  },
+const coerceBody = (body) => ({
+  ...body,
+  ...(body.qte         && { qte: Number(body.qte) }),
+  ...(body.prix        && { prix: Number(body.prix) }),
+  ...(body.categoryId  && { categoryId: Number(body.categoryId) }),
+  ...(body.fournisseurId && { fournisseurId: Number(body.fournisseurId) }),
+})
 
-   create: async (req, res, next) => {
-    try {
-      // Les champs texte viennent de req.body, le fichier de req.file
-      const body = {
-        ...req.body,
-        qte: Number(req.body.qte),
-        prix: Number(req.body.prix),
-        categoryId: Number(req.body.categoryId),
-        fournisseurId: Number(req.body.fournisseurId),
-      }
-
-      const parsed = produitCreateSchema.safeParse(body)
-      if (!parsed.success) {
-        return res.status(400).json({ errors: parsed.error.flatten().fieldErrors })
-      }
-
-      if (!req.file) {
-        return res.status(400).json({ errors: { image: ["L'image est obligatoire"] } })
-      }
-
-      const data = await produitService.create(parsed.data, req.file)
-      res.status(201).json(data)
-    } catch (err) { next(err) }
-  },
-
-  update: async (req, res, next) => {
-    try {
-      const body = {
-        ...req.body,
-        ...(req.body.qte && { qte: Number(req.body.qte) }),
-        ...(req.body.prix && { prix: Number(req.body.prix) }),
-        ...(req.body.categoryId && { categoryId: Number(req.body.categoryId) }),
-        ...(req.body.fournisseurId && { fournisseurId: Number(req.body.fournisseurId) }),
-      }
-
-      const parsed = produitUpdateSchema.safeParse(body)
-      if (!parsed.success) {
-        return res.status(400).json({ errors: parsed.error.flatten().fieldErrors })
-      }
-
-      const data = await produitService.update(Number(req.params.id), parsed.data, req.file)
-      res.json(data)
-    } catch (err) { next(err) }
-  },
-
-
-  delete: async (req, res, next) => {
-    try {
-      await produitService.delete(Number(req.params.id))
-      res.status(204).send()
-    } catch (err) { next(err) }
+const validateProduit = (schema, body, res) => {
+  const parsed = schema.safeParse(body)
+  if (!parsed.success) {
+    res.status(400).json({ errors: parsed.error.flatten().fieldErrors })
+    return null
   }
+  return parsed.data
+}
+
+export const produitController = {
+  ...base,
+
+  create: asyncHandler(async (req, res) => {
+    const body = coerceBody({ ...req.body, qte: Number(req.body.qte), prix: Number(req.body.prix), categoryId: Number(req.body.categoryId), fournisseurId: Number(req.body.fournisseurId) })
+    const parsed = validateProduit(produitCreateSchema, body, res)
+    if (!parsed) return
+
+    if (!req.file) {
+      return res.status(400).json({ errors: { image: ["L'image est obligatoire"] } })
+    }
+
+    res.status(201).json(await produitService.create(parsed, req.file))
+  }),
+
+  update: asyncHandler(async (req, res) => {
+    const body = coerceBody(req.body)
+    const parsed = validateProduit(produitUpdateSchema, body, res)
+    if (!parsed) return
+
+    res.json(await produitService.update(Number(req.params.id), parsed, req.file))
+  })
 }

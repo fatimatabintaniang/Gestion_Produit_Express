@@ -1,46 +1,28 @@
 import { fournisseurRepository } from '../repositories/fournisseur.repo.js'
+import { findOrFail, checkUnique } from '../utils/service.helpers.js'
 
 export const fournisseurService = {
-  getAll: async () => {
-    return await fournisseurRepository.findAll()
-  },
+  getAll: () => fournisseurRepository.findAll(),
 
-  getById: async (id) => {
-    const fournisseur = await fournisseurRepository.findById(id)
-    if (!fournisseur) throw { status: 404, message: 'Fournisseur non trouvé' }
-    return fournisseur
-  },
+  getById: (id) => findOrFail(fournisseurRepository, id, 'Fournisseur'),
 
   create: async (data) => {
-    const existingEmail = await fournisseurRepository.findByEmail(data.email)
-    if (existingEmail) throw { status: 400, message: 'Cet email est déjà utilisé' }
-
-    const existingTel = await fournisseurRepository.findByTelephone(data.telephone)
-    if (existingTel) throw { status: 400, message: 'Ce téléphone est déjà utilisé' }
-
-    return await fournisseurRepository.create(data)
+    await checkUnique(fournisseurRepository.findByEmail, data.email, 'Cet email est déjà utilisé')
+    await checkUnique(fournisseurRepository.findByTelephone, data.telephone, 'Ce téléphone est déjà utilisé')
+    return fournisseurRepository.create(data)
   },
 
   update: async (id, data) => {
-    await fournisseurService.getById(id)
-
-    if (data.email) {
-      const existingEmail = await fournisseurRepository.findByEmail(data.email)
-      if (existingEmail && existingEmail.id !== id)
-        throw { status: 400, message: 'Cet email est déjà utilisé' }
-    }
-
-    if (data.telephone) {
-      const existingTel = await fournisseurRepository.findByTelephone(data.telephone)
-      if (existingTel && existingTel.id !== id)
-        throw { status: 400, message: 'Ce téléphone est déjà utilisé' }
-    }
-
-    return await fournisseurRepository.update(id, data)
+    await findOrFail(fournisseurRepository, id, 'Fournisseur')
+    if (data.email)
+      await checkUnique(fournisseurRepository.findByEmail, data.email, 'Cet email est déjà utilisé', id)
+    if (data.telephone)
+      await checkUnique(fournisseurRepository.findByTelephone, data.telephone, 'Ce téléphone est déjà utilisé', id)
+    return fournisseurRepository.update(id, data)
   },
 
   delete: async (id) => {
-    await fournisseurService.getById(id)
-    await fournisseurRepository.delete(id)
+    await findOrFail(fournisseurRepository, id, 'Fournisseur')
+    return fournisseurRepository.delete(id)
   }
 }

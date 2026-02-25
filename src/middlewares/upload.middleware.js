@@ -1,6 +1,6 @@
 import multer from 'multer'
 
-const storage = multer.memoryStorage() // stockage en mémoire (buffer)
+const storage = multer.memoryStorage() 
 
 export const upload = multer({
   storage,

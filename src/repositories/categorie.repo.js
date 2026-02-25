@@ -1,15 +1,9 @@
+import { createBaseRepository } from './base.repo.js'
 import prisma from '../config/db.js'
 
+const base = createBaseRepository('categorie')
+
 export const categorieRepository = {
-  findAll: () => prisma.categorie.findMany(),
-
-  findById: (id) => prisma.categorie.findUnique({ where: { id } }),
-
-  findByLibelle: (libelle) => prisma.categorie.findFirst({ where: { libelle } }),
-
-  create: (data) => prisma.categorie.create({ data }),
-
-  update: (id, data) => prisma.categorie.update({ where: { id }, data }),
-
-  delete: (id) => prisma.categorie.delete({ where: { id } })
+  ...base,
+  findByLibelle: (libelle) => prisma.categorie.findFirst({ where: { libelle } })
 }

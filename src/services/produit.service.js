@@ -2,53 +2,43 @@ import { produitRepository } from '../repositories/produit.repo.js'
 import { categorieService } from './categorie.service.js'
 import { fournisseurService } from './fournisseur.service.js'
 import { uploadImage, deleteImage } from '../utils/uploadImage.js'
+import { findOrFail, checkUnique } from '../utils/service.helpers.js'
 
 export const produitService = {
-  getAll: async () => {
-    return await produitRepository.findAll()
-  },
+  getAll: () => produitRepository.findAll(),
 
-  getById: async (id) => {
-    const produit = await produitRepository.findById(id)
-    if (!produit) throw { status: 404, message: 'Produit non trouvé' }
-    return produit
-  },
+  getById: (id) => findOrFail(produitRepository, id, 'Produit'),
 
- create: async (data, file) => {
-    const existing = await produitRepository.findByLibelle(data.libelle)
-    if (existing) throw { status: 400, message: 'Ce libellé existe déjà' }
-
+  create: async (data, file) => {
+    await checkUnique(produitRepository.findByLibelle, data.libelle, 'Ce libellé existe déjà')
     await categorieService.getById(data.categoryId)
     await fournisseurService.getById(data.fournisseurId)
 
-    const imageUrl = await uploadImage(file.buffer, file.mimetype) // ← buffer
-
-    return await produitRepository.create({ ...data, image: imageUrl })
+    const image = await uploadImage(file.buffer, file.mimetype)
+    return produitRepository.create({ ...data, image })
   },
 
   update: async (id, data, file) => {
-    const produit = await produitService.getById(id)
+    const produit = await findOrFail(produitRepository, id, 'Produit')
 
-    if (data.libelle) {
-      const existing = await produitRepository.findByLibelle(data.libelle)
-      if (existing && existing.id !== id)
-        throw { status: 400, message: 'Ce libellé existe déjà' }
-    }
-
-    if (data.categoryId) await categorieService.getById(data.categoryId)
-    if (data.fournisseurId) await fournisseurService.getById(data.fournisseurId)
+    if (data.libelle)
+      await checkUnique(produitRepository.findByLibelle, data.libelle, 'Ce libellé existe déjà', id)
+    if (data.categoryId)
+      await categorieService.getById(data.categoryId)
+    if (data.fournisseurId)
+      await fournisseurService.getById(data.fournisseurId)
 
     if (file) {
       await deleteImage(produit.image)
-      data.image = await uploadImage(file.buffer, file.mimetype) // ← buffer
+      data.image = await uploadImage(file.buffer, file.mimetype)
     }
 
-    return await produitRepository.update(id, data)
+    return produitRepository.update(id, data)
   },
 
-delete: async (id) => {
-  const produit = await produitService.getById(id) 
-  await deleteImage(produit.image)
-  await produitRepository.delete(id)
-}
+  delete: async (id) => {
+    const produit = await findOrFail(produitRepository, id, 'Produit')
+    await deleteImage(produit.image)
+    return produitRepository.delete(id)
+  }
 }
