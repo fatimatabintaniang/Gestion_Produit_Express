@@ -23,6 +23,14 @@ export const fournisseurService = {
 
   delete: async (id) => {
     await findOrFail(fournisseurRepository, id, 'Fournisseur')
+  
+    const productCount = await fournisseurRepository.hasProducts(id)
+    if (productCount > 0) {
+      const error = new Error(`Impossible de supprimer ce fournisseur car il est associé à ${productCount} produit(s)`)
+      error.status = 409
+      throw error
+    }
+  
     return fournisseurRepository.delete(id)
   }
 }

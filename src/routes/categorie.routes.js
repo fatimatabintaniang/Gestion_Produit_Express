@@ -8,6 +8,6 @@ const router = Router()
 router.get('/', categorieController.getAll)
 router.get('/:id', categorieController.getById)
 router.post('/', validate(categorieCreateSchema), categorieController.create)
-router.put('/:id', validate(categorieUpdateSchema), categorieController.update)
+router.patch('/:id', validate(categorieUpdateSchema), categorieController.update)
 router.delete('/:id', categorieController.delete)
 export default router

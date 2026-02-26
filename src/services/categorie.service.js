@@ -18,8 +18,16 @@ export const categorieService = {
     return categorieRepository.update(id, data)
   },
 
-  delete: async (id) => {
-    await findOrFail(categorieRepository, id, 'Catégorie')
-    return categorieRepository.delete(id)
+delete: async (id) => {
+  await findOrFail(categorieRepository, id, 'Catégorie')
+
+  const productCount = await categorieRepository.hasProducts(id)
+  if (productCount > 0) {
+    const error = new Error(`Impossible de supprimer : ${productCount} produit(s) sont liés à cette catégorie`)
+    error.status = 409
+    throw error
   }
+
+  return categorieRepository.delete(id)
+}
 }

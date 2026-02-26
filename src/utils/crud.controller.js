@@ -15,6 +15,7 @@ export const createCrudController = (service) => ({
 
   update: asyncHandler(async (req, res) => {
     res.json(await service.update(Number(req.params.id), req.body))
+
   }),
 
   delete: asyncHandler(async (req, res) => {

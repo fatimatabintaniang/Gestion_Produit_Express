@@ -6,5 +6,6 @@ const base = createBaseRepository('fournisseur')
 export const fournisseurRepository = {
   ...base,
   findByEmail: (email) => prisma.fournisseur.findUnique({ where: { email } }),
-  findByTelephone: (telephone) => prisma.fournisseur.findUnique({ where: { telephone } })
+  findByTelephone: (telephone) => prisma.fournisseur.findUnique({ where: { telephone } }),
+  hasProducts: (id) => prisma.produit.count({ where: { fournisseurId: id } })
 }

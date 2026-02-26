@@ -5,5 +5,8 @@ const base = createBaseRepository('categorie')
 
 export const categorieRepository = {
   ...base,
-  findByLibelle: (libelle) => prisma.categorie.findFirst({ where: { libelle } })
+  findByLibelle: (libelle) => prisma.categorie.findFirst({ where: { libelle } }),
+  hasProducts: (id) => prisma.produit.count({ where: { categoryId: id } })
+
 }
+

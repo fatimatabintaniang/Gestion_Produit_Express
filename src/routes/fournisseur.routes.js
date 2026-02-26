@@ -7,6 +7,6 @@ const router = Router()
 router.get('/', fournisseurController.getAll)
 router.get('/:id', fournisseurController.getById)
 router.post('/', validate(fournisseurCreateSchema), fournisseurController.create)
-router.put('/:id', validate(fournisseurUpdateSchema), fournisseurController.update)
+router.patch('/:id', validate(fournisseurUpdateSchema), fournisseurController.update)
 router.delete('/:id', fournisseurController.delete)
 export default router
